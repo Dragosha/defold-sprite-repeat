@@ -1,0 +1,32 @@
+go.property("url", msg.url("#sprite"))
+go.property("repeat_x", 2)
+go.property("repeat_y", 2)
+go.property("auto_tiling", false)
+
+go.property("repeat_material", resource.material("/sprite_repeat/material/sprite_repeat.material"))
+
+local sprite_repeat = require('sprite_repeat.sprite_repeat')
+
+function init(self)
+
+    -- Send 'fit projection' to render script.
+    msg.post("@render:", "use_fixed_fit_projection", { near = -1, far = 1 })
+
+    -- If auto tiling is enabled then use sprite 'scale' value as the sprite repeat factor.  
+    if self.auto_tiling then
+        local scale = go.get(self.url, "scale")
+        self.repeat_x = scale.x
+        self.repeat_y = scale.y
+    end
+
+    -- Set repeat material to the sprite.
+    go.set(self.url, "material", self.repeat_material)
+
+    -- Create and go our super-puper repeating magic.
+    local sr = sprite_repeat.create(self.url)
+    sr.animate(self.repeat_x, self.repeat_y)
+
+end
+
+function final(self)
+end
