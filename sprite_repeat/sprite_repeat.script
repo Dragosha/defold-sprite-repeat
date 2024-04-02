@@ -20,7 +20,7 @@ function init(self)
     end
 
     -- Set repeat material to the sprite.
-    go.set(self.url, "material", self.repeat_material)
+    -- go.set(self.url, "material", self.repeat_material)
 
     -- Create and go our super-puper repeating magic.
     local sr = sprite_repeat.create(self.url)

@@ -1,0 +1,26 @@
+uniform highp mat4 view_proj;
+
+// positions are in world space
+attribute highp vec4 position;
+attribute mediump vec2 texcoord0;
+
+// add custom vertex attribute and uniforms
+attribute highp vec3 local_position;
+attribute highp vec4 uv_coord;
+attribute highp vec4 uv_repeat;
+
+varying mediump vec2 var_texcoord0;
+varying highp vec2 var_boo;
+varying highp vec4 var_uv;
+varying highp vec4 var_repeat;
+
+void main()
+{
+    gl_Position = view_proj * vec4(position.xyz, 1.0);
+    var_texcoord0 = texcoord0;
+
+    // 
+    var_boo = vec2(local_position.x / uv_repeat.z + 0.5, local_position.y / uv_repeat.w + 0.5);
+    var_uv = uv_coord;
+    var_repeat = uv_repeat;
+}
