@@ -44,30 +44,65 @@ function M.create(sprite_url, sprite_id, self)
         local uvs = atlas_data.geometries[index].uvs
         assert(#uvs == 8, "Sprite trim mode should be disabled for the images.")
 
+        --   UV texture coordinates
+        --   1
+        --   ^ V
+        --   |
+        --   |
+        --   |       U
+        --   0-------> 1
 
-        local position_x = uvs[1]
-        local position_y = uvs[6]
+        -- uvs = {
+        -- 0,     0,
+        -- 0,     height,
+        -- width, height,
+        -- width, 0
+        -- },
+        -- geometries.indices = {0 (1,2),  1(3,4),  2(5,6),  0(1,2),  2(5,6),  3(7,8)}
+        --   1------2
+        --   |    / |
+        --   | A /  |
+        --   |  / B |
+        --   | /    | 
+        --   0------3
+
         local width = uvs[5] - uvs[1]
-        local height = uvs[2] - uvs[6]
-
+        local height = uvs[2] - uvs[6]       
+        local u1 = uvs[1]
+        local v1 = uvs[6]
+        local u2 = uvs[5]
+        local v2 = uvs[2]
+        local is_rotated = false
+        -- pprint(atlas_data.geometries[index])
         if height < 0 then
-            -- In case the atlas builder has flipped the sprite to optimise the space.
-            position_y = uvs[2]
-            height = uvs[6] - uvs[2]
-        end
+            -- In case the atlas has clockwise rotated sprite.
+            --   0------1
+            --   |\  A  |
+            --   | \    |
+            --   |  \   |
+            --   | B  \ | 
+            --   3------2
 
-        local u1 = (position_x) / tex_w
-        local v1 = (tex_h - (position_y)) / tex_h
+            height = uvs[5] - uvs[1]
+            width = uvs[6] - uvs[2]
+            -- print("rotated", width, height)
+            is_rotated = true
+        end
+        
+
+        -- local u1 = (position_x) / tex_w
+        -- local v1 = (tex_h - (position_y)) / tex_h
 
         local frame = {
             uv_coord =  vmath.vector4(
-                u1,
-                v1,
-                u1 + width / tex_w,
-                v1 - height / tex_h
+                u1 / tex_w,
+                (tex_h - v1) / tex_h,
+                u2 / tex_w,
+                (tex_h - v2) / tex_h
             ),
             w = width,
-            h = height
+            h = height,
+            uv_rotated = is_rotated and vmath.vector4(0, 1, 0, 0) or vmath.vector4(1, 0, 0, 0)
         }
         table.insert(frames, frame)
     end
@@ -87,6 +122,7 @@ function M.create(sprite_url, sprite_id, self)
 
         local frame = animation.frames[1]
         go.set(sprite_url, "uv_coord", frame.uv_coord)
+        go.set(sprite_url, "uv_rotated", frame.uv_rotated)
         animation.v.x = repeat_x
         animation.v.y = repeat_y
         animation.v.z = frame.w
@@ -98,7 +134,10 @@ function M.create(sprite_url, sprite_id, self)
             timer.delay(1/animation.fps, true, function(self, handle, time_elapsed)
                 local frame = animation.frames[animation.current_frame]
                 go.set(sprite_url, "uv_coord", frame.uv_coord)
-                -- go.set(sprite_url, "uv_repeat", vmath.vector4(repeat_x, repeat_y, frame.w, frame.h))
+                go.set(sprite_url, "uv_rotated", frame.uv_rotated)
+                animation.v.z = frame.w
+                animation.v.w = frame.h
+                go.set(sprite_url, "uv_repeat", animation.v)
                 
                 animation.current_frame = animation.current_frame + 1
                 if animation.current_frame > #animation.frames then

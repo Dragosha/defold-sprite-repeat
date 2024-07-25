@@ -8,11 +8,13 @@ attribute mediump vec2 texcoord0;
 attribute highp vec3 local_position;
 uniform highp vec4 uv_coord;
 uniform highp vec4 uv_repeat;
+uniform highp vec4 uv_rotated;
 
 varying mediump vec2 var_texcoord0;
 varying highp vec2 var_boo;
 varying highp vec4 var_uv;
 varying highp vec4 var_repeat;
+varying highp vec4 var_rotated;
 
 void main()
 {
@@ -23,4 +25,5 @@ void main()
     var_boo = vec2(local_position.x / uv_repeat.z + 0.5, local_position.y / uv_repeat.w + 0.5);
     var_uv = uv_coord;
     var_repeat = uv_repeat;
+    var_rotated = uv_rotated;
 }

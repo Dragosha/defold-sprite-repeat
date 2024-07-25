@@ -2,7 +2,6 @@ name: "sprite_repeat"
 tags: "tile"
 vertex_program: "/sprite_repeat/material/sprite_repeat.vp"
 fragment_program: "/sprite_repeat/material/sprite_repeat.fp"
-vertex_space: VERTEX_SPACE_WORLD
 vertex_constants {
   name: "view_proj"
   type: CONSTANT_TYPE_VIEWPROJ
@@ -11,20 +10,19 @@ vertex_constants {
   name: "uv_coord"
   type: CONSTANT_TYPE_USER
   value {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 0.0
   }
 }
 vertex_constants {
   name: "uv_repeat"
   type: CONSTANT_TYPE_USER
   value {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 0.0
+  }
+}
+vertex_constants {
+  name: "uv_rotated"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 1.0
   }
 }
 fragment_constants {
@@ -43,16 +41,11 @@ samplers {
   wrap_v: WRAP_MODE_CLAMP_TO_EDGE
   filter_min: FILTER_MODE_MIN_DEFAULT
   filter_mag: FILTER_MODE_MAG_DEFAULT
-  max_anisotropy: 1.0
 }
-max_page_count: 0
 attributes {
   name: "local_position"
   semantic_type: SEMANTIC_TYPE_POSITION
   element_count: 3
-  normalize: false
-  data_type: TYPE_FLOAT
-  coordinate_space: COORDINATE_SPACE_LOCAL
   double_values {
     v: 0.0
     v: 0.0
