@@ -1,0 +1,26 @@
+uniform highp mat4 view_proj;
+
+// positions are in world space
+attribute mediump vec3 position;
+attribute mediump vec2 texcoord0;
+attribute lowp vec4 color;
+
+uniform highp vec4 uv_coord;
+uniform highp vec4 uv_repeat;
+uniform highp vec4 uv_rotated;
+
+varying mediump vec2 var_texcoord0;
+varying lowp vec4 var_color;
+varying highp vec4 var_uv;
+varying highp vec4 var_repeat;
+varying highp vec4 var_rotated;
+
+void main()
+{
+    var_texcoord0 = texcoord0;
+    var_color = vec4(color.rgb * color.a, color.a);
+    var_uv = uv_coord;
+    var_repeat = uv_repeat;
+    var_rotated = uv_rotated;
+    gl_Position = view_proj * vec4(position.xyz, 1.0);
+}

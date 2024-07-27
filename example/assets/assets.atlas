@@ -45,7 +45,7 @@ animations {
   images {
     image: "/example/assets/animated/a (0007).png"
   }
-  playback: PLAYBACK_LOOP_FORWARD
+  playback: PLAYBACK_NONE
   fps: 8
 }
 margin: 1

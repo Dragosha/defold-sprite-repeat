@@ -30,6 +30,35 @@ Works with both static and animated sprites.
 
 ![Example](example.png)
 
+
+# GUI box node texture repeat shader.
+
+---
+Set 'node_repeat' material to the box node. Directly in the editor or with code.
+
+```lua
+gui.set_material(node, "gui_repeat")
+```
+
+Setup constants to the material shader:
+
+```lua
+	local node_repeat = require('node_repeat.node_repeat')
+	....
+	local nr = node_repeat.create(node, nil, atlas_path)
+	nr.animate(repeat_x, repeat_y)
+```
+
+Update the repeat factors if need:
+
+```lua
+	nr.update(1, 4*y)
+```
+
+See 'test.gui_script' for details.
+
+---
+
 Happy Defolding!
 
 ---

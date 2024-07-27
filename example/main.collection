@@ -24,7 +24,7 @@ embedded_instances {
   "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"barrel\\\"\\n"
+  "  data: \"default_animation: \\\"animation\\\"\\n"
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "textures {\\n"
   "  sampler: \\\"texture_sampler\\\"\\n"
@@ -41,4 +41,21 @@ embedded_instances {
     x: 640.0
     y: 360.0
   }
+}
+embedded_instances {
+  id: "gui"
+  data: "components {\n"
+  "  id: \"gui\"\n"
+  "  component: \"/example/gui/test.gui\"\n"
+  "}\n"
+  "components {\n"
+  "  id: \"atlas\"\n"
+  "  component: \"/example/gui/atlas.script\"\n"
+  "  properties {\n"
+  "    id: \"atlas\"\n"
+  "    value: \"/example/assets/assets.atlas\"\n"
+  "    type: PROPERTY_TYPE_HASH\n"
+  "  }\n"
+  "}\n"
+  ""
 }

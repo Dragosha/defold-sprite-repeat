@@ -1,0 +1,4 @@
+go.property("atlas", resource.atlas())
+function init(self)
+	msg.post("#gui", "atlas", {atlas = self.atlas})
+end

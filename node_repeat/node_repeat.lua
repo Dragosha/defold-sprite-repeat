@@ -1,34 +1,26 @@
 local M = {}
 
-function M.create(sprite_url, sprite_id, self)
+-- @param node_or_string -- name of node
+-- @param animation_id -- string or id, if [nil] than will be taken from get_flipbook (node)
+-- @param atlas_path -- path to get atlas info through resource.get_atlas
+function M.create(node_or_string, animation_id, atlas_path)
 
-    local atlas_data
-    local tex_info
-    -- use precashed atlas info if them is available 
-    if self and self.atlas_data and self.tex_info then
-        atlas_data = self.atlas_data
-        tex_info = self.tex_info
-    else
-        local atlas = go.get(sprite_url, "image")
-        atlas_data = resource.get_atlas(atlas)
-        tex_info = resource.get_texture_info(atlas_data.texture)
-        if self then
-            self.atlas_data = atlas_data
-            self.tex_info = tex_info
-        end
-    end
+    local node = type(node_or_string) == "string" and gui.get_node(node_or_string) or node_or_string
+
+    assert(atlas_path, "Need an atlas path resource")
+    local atlas_data = resource.get_atlas(atlas_path)
+    local tex_info = resource.get_texture_info(atlas_data.texture)
     local tex_w = tex_info.width
     local tex_h = tex_info.height
 
-    -- pprint(atlas_data)
     local animation_data
 
-    local in_sprite_id = sprite_id
-    if sprite_id and type(sprite_id) == "string" then
-        in_sprite_id = hash(sprite_id)
+    local in_animation_id = animation_id
+    if animation_id and type(animation_id) == "string" then
+        in_animation_id = hash(animation_id)
     end
 
-    local sprite_image_id = in_sprite_id or go.get(sprite_url, "animation")
+    local sprite_image_id = in_animation_id or gui.get_flipbook(node)
     for i, animation in ipairs(atlas_data.animations) do
         if hash(animation.id) == sprite_image_id then
             animation_data = animation
@@ -98,6 +90,7 @@ function M.create(sprite_url, sprite_id, self)
             ),
             w = width,
             h = height,
+            -- For some reason uv_rotated info isn't needed for the gui shader against sprite shader. why? :-\
             uv_rotated = is_rotated and vmath.vector4(0, 1, 0, 0) or vmath.vector4(1, 0, 0, 0)
         }
         table.insert(frames, frame)
@@ -110,30 +103,32 @@ function M.create(sprite_url, sprite_id, self)
         fps     = animation_data.fps,
         v       = vmath.vector4(1, 1, animation_data.width, animation_data.height),
         current_frame = 1,
+        node    = node,
     }
 
-    -- @param repeat_x 
-    -- @param repeat_y
+    -- Start our repeat shader work
+    -- @param repeat_x -- X factor
+    -- @param repeat_y -- Y factor
     function animation.animate(repeat_x, repeat_y)
 
         local frame = animation.frames[1]
-        go.set(sprite_url, "uv_coord", frame.uv_coord)
-        go.set(sprite_url, "uv_rotated", frame.uv_rotated)
+        gui.set(node, "uv_coord", frame.uv_coord)
+        -- gui.set(node, "uv_rotated", frame.uv_rotated)
         animation.v.x = repeat_x
         animation.v.y = repeat_y
         animation.v.z = frame.w
         animation.v.w = frame.h
-        go.set(sprite_url, "uv_repeat", animation.v)
+        gui.set(node, "uv_repeat", animation.v)
 
         if #animation.frames > 1 and animation.fps > 0 then
             animation.handle = 
             timer.delay(1/animation.fps, true, function(self, handle, time_elapsed)
                 local frame = animation.frames[animation.current_frame]
-                go.set(sprite_url, "uv_coord", frame.uv_coord)
-                go.set(sprite_url, "uv_rotated", frame.uv_rotated)
+                gui.set(node, "uv_coord", frame.uv_coord)
+                -- gui.set(node, "uv_rotated", frame.uv_rotated)
                 animation.v.z = frame.w
                 animation.v.w = frame.h
-                go.set(sprite_url, "uv_repeat", animation.v)
+                gui.set(node, "uv_repeat", animation.v)
                 
                 animation.current_frame = animation.current_frame + 1
                 if animation.current_frame > #animation.frames then
@@ -150,7 +145,31 @@ function M.create(sprite_url, sprite_id, self)
         end
     end
 
+    -- Update repeat factor values
+    -- @param repeat_x 
+    -- @param repeat_y
+    function animation.update(repeat_x, repeat_y)
+        if repeat_x then animation.v.x = repeat_x end
+        if repeat_y then animation.v.y = repeat_y end
+        gui.set(node, "uv_repeat", animation.v)
+    end
+
     return animation
+end
+
+
+M.x_ratio = 1
+M.y_ratio = 1
+
+function M.get_screen_aspect_ratio()
+    local window_x, window_y = window.get_size()
+    local stretch_x = window_x / gui.get_width()
+    local stretch_y = window_y / gui.get_height()
+
+    M.x_ratio = stretch_x / math.min(stretch_x, stretch_y)
+    M.y_ratio = stretch_y / math.min(stretch_x, stretch_y)
+
+    return  M.x_ratio, M.y_ratio
 end
 
 return M

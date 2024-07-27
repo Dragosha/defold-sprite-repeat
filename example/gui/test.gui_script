@@ -1,0 +1,67 @@
+local node_repeat = require('node_repeat.node_repeat')
+
+local function adjust_border(self)
+	local x, y = node_repeat.get_screen_aspect_ratio()
+	local aspect = x/y
+	print("aspect = ", aspect)
+	if self.left then
+
+		gui.set_scale(self.left.node, vmath.vector3(1/x, 1, 1))
+		gui.set_scale(self.right.node, vmath.vector3(1/x, 1, 1))
+		gui.set_scale(self.top.node, vmath.vector3(1, 1/y, 1))
+		gui.set_scale(self.bottom.node, vmath.vector3(1, 1/y, 1))
+		self.left.update(nil, 4*y)
+		self.right.update(nil, 4*y)
+		self.top.update(12*x, nil)
+		self.bottom.update(12*x, nil)
+	end
+end
+
+
+function init(self)
+
+	-- An example. Adjust border nodes in depend screen size/aspect ratio
+	window.set_listener(function(self, event, data)
+		if event == window.WINDOW_EVENT_RESIZED then
+			adjust_border(self)
+		end
+	end)
+	
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("atlas") then
+
+		-- to correct work, we need access to the atlas our node is using,
+		-- for some reason gui.get_texture(node) only returns the atlas name, not the full path like resource.atlas()
+		-- on the other hand, resource.atlas() can only be placed in go.property()
+		-- so we just send this info from the atlas.script to the test.gui_script
+		-- If you can make this easier, please leave a comment to fix this point.
+
+		local atlas_path = message.atlas
+		local node = gui.get_node("fit_box")
+		local scale = gui.get_scale(node)
+		
+		-- Set repeat material to the box node.
+		gui.set_material(node, "gui_repeat")
+
+		-- Create and go our super-puper repeating magic.
+		local nr = node_repeat.create(node, nil, atlas_path)
+		nr.animate(scale.x, scale.y)
+
+
+		-- Border box nodes have already setted repeat-material in gui editor properties panel.
+		self.left = node_repeat.create("left", nil, atlas_path)
+		self.left.animate(1, 4)
+		self.right = node_repeat.create("right", nil, atlas_path)
+		self.right.animate(1, 4)
+		self.top = node_repeat.create("top", nil, atlas_path)
+		self.top.animate(12, 1)
+		self.bottom = node_repeat.create("bottom", nil, atlas_path)
+		self.bottom.animate(12, 1)
+
+		adjust_border(self)
+
+	end
+end
+
