@@ -16,10 +16,11 @@ nodes {
     y: 8.0
   }
   type: TYPE_BOX
-  texture: "assets/stuff3"
+  texture: "assets/barrel"
   id: "fit_box"
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
+  enabled: false
 }
 nodes {
   size {

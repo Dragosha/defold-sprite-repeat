@@ -35,6 +35,12 @@ fragment_constants {
     w: 1.0
   }
 }
+fragment_constants {
+  name: "direction"
+  type: CONSTANT_TYPE_USER
+  value {
+  }
+}
 samplers {
   name: "texture_sampler"
   wrap_u: WRAP_MODE_CLAMP_TO_EDGE
@@ -45,10 +51,5 @@ samplers {
 attributes {
   name: "local_position"
   semantic_type: SEMANTIC_TYPE_POSITION
-  element_count: 3
-  double_values {
-    v: 0.0
-    v: 0.0
-    v: 0.0
-  }
+  vector_type: VECTOR_TYPE_VEC3
 }
